@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Log in</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #f0f2f5; height: 100vh; display: flex; align-items: center; justify-content: center; }
+  form { background: #fff; padding: 24px; border-radius: 12px; width: 300px; box-shadow: 0 2px 10px #0002; }
+  input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; }
+  button { width: 100%; padding: 10px; border: 0; border-radius: 8px; background: #0b84ff; color: #fff; cursor: pointer; margin-top: 8px; }
+  #err { color: #c00; font-size: 14px; min-height: 18px; }
+  a { color: #0b84ff; text-decoration: none; font-size: 14px; }
+</style>
+</head>
+<body>
+<form id="form">
+  <h2 style="margin:0 0 10px">Log in</h2>
+  <input id="username" placeholder="Username" autocomplete="username" autofocus />
+  <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+  <div id="err"></div>
+  <button>Log in</button>
+  <p>No account? <a href="/signup.html">Sign up</a></p>
+</form>
+<script>
+  document.getElementById("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+    if (!data.ok) return (document.getElementById("err").textContent = data.error);
+    location.href = "/";
+  });
+</script>
+</body>
+</html>

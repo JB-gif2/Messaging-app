@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign up</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #f0f2f5; height: 100vh; display: flex; align-items: center; justify-content: center; }
+  form { background: #fff; padding: 24px; border-radius: 12px; width: 320px; box-shadow: 0 2px 10px #0002; }
+  input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; }
+  input[type="file"] { padding: 6px; }
+  button { width: 100%; padding: 10px; border: 0; border-radius: 8px; background: #0b84ff; color: #fff; cursor: pointer; margin-top: 8px; }
+  #err { color: #c00; font-size: 14px; min-height: 18px; }
+  a { color: #0b84ff; text-decoration: none; font-size: 14px; }
+  label { font-size: 13px; color: #555; }
+</style>
+</head>
+<body>
+<form id="form">
+  <h2 style="margin:0 0 10px">Create account</h2>
+  <input id="name" placeholder="Display name" maxlength="40" autofocus />
+  <input id="username" placeholder="Username" maxlength="20" autocomplete="username" />
+  <input id="password" type="password" placeholder="Password (min 6 chars)" autocomplete="new-password" />
+  <label>Profile photo (optional)</label>
+  <input id="photo" type="file" accept="image/*" />
+  <div id="err"></div>
+  <button>Sign up</button>
+  <p>Have an account? <a href="/login.html">Log in</a></p>
+</form>
+<script>
+  document.getElementById("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData();
+    fd.append("name", document.getElementById("name").value.trim());
+    fd.append("username", document.getElementById("username").value.trim());
+    fd.append("password", document.getElementById("password").value);
+    const photo = document.getElementById("photo").files[0];
+    if (photo) fd.append("photo", photo);
+
+    const res = await fetch("/api/signup", { method: "POST", body: fd });
+    const data = await res.json();
+    if (!data.ok) return (document.getElementById("err").textContent = data.error);
+    location.href = "/";
+  });
+</script>
+</body>
+</html>

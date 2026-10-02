@@ -9,130 +9,995 @@
   body { margin: 0; font-family: system-ui, sans-serif; background: #f0f2f5; height: 100vh; }
   .hidden { display: none !important; }
 
-  #login { display: flex; height: 100%; align-items: center; justify-content: center; }
-  #login form { background: #fff; padding: 24px; border-radius: 12px; width: 300px; box-shadow: 0 2px 10px #0002; }
-  #login input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; }
-  #err { color: #c00; font-size: 14px; min-height: 18px; }
+  #app { display: flex; flex-direction: column; height: 100%; }
+  #topbar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: #fff; border-bottom: 1px solid #ddd; }
+  #topbar .name { font-weight: 600; flex: 1; }
+  #topbar button { padding: 6px 12px; border: 0; border-radius: 16px; background: #eee; cursor: pointer; }
+  #offlineBanner { background: #fff3cd; color: #856404; text-align: center; font-size: 12px; padding: 5px; }
 
-  #app { display: flex; height: 100%; }
-  #sidebar { width: 200px; background: #fff; border-right: 1px solid #ddd; padding: 12px; overflow-y: auto; }
-  #sidebar h3 { margin: 0 0 8px; font-size: 14px; color: #666; }
-  #users div::before { content: "● "; color: #2ecc71; }
+  #main { flex: 1; display: flex; min-height: 0; }
+
+  #sidebar { width: 280px; background: #fff; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
+  #sidebarHead { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #eee; }
+  #sidebarHead h3 { margin: 0; font-size: 13px; color: #444; letter-spacing: .04em; }
+  #newChatBtn { border: 0; background: #0b84ff; color: #fff; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 1; }
+  #sidebarList { flex: 1; overflow-y: auto; }
+
+  .chat-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f2f2f2; }
+  .chat-item:hover { background: #f7f7f7; }
+  .chat-item.active { background: #eaf3ff; }
+  .chat-item .info { flex: 1; min-width: 0; }
+  .chat-item .row1 { display: flex; justify-content: space-between; align-items: baseline; }
+  .chat-item .name { font-weight: 600; font-size: 14px; }
+  .chat-item .time { font-size: 11px; color: #999; }
+  .chat-item .preview { font-size: 13px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .badge { background: #0b84ff; color: #fff; font-size: 11px; border-radius: 10px; min-width: 18px; height: 18px; padding: 0 5px; display: flex; align-items: center; justify-content: center; }
+  #emptyList { padding: 16px; color: #888; font-size: 13px; }
+
   #chat { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-  #messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
-  .msg { max-width: 75%; padding: 8px 12px; border-radius: 12px; background: #fff; word-wrap: break-word; }
-  .msg.me { align-self: flex-end; background: #0b84ff; color: #fff; }
-  .msg .meta { font-size: 11px; opacity: .7; margin-bottom: 2px; }
-  .sys { align-self: center; font-size: 12px; color: #888; }
+  #chatHeader { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #fff; border-bottom: 1px solid #ddd; }
+  #chatHeader .name { font-weight: 600; }
+  #chatHeader .status { font-size: 12px; color: #4caf50; }
+  #peerMeta { flex: 1; min-width: 0; }
+  #infoBtn { border: 0; background: #eee; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+  #placeholder { flex: 1; display: flex; align-items: center; justify-content: center; color: #999; }
+
+  #messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; }
+  .row.me { flex-direction: row-reverse; }
+  .msg { max-width: 70%; padding: 8px 12px; border-radius: 12px; background: #fff; word-wrap: break-word; }
+  .row.me .msg { background: #0b84ff; color: #fff; }
+  .msg .meta { font-size: 11px; opacity: .7; margin-top: 3px; display: flex; gap: 6px; }
+  .ticks { font-size: 11px; }
+  .ticks.read { color: #d8f0ff; }
   #typing { height: 20px; padding: 0 14px; font-size: 12px; color: #888; }
   #composer { display: flex; gap: 8px; padding: 10px; background: #fff; border-top: 1px solid #ddd; }
   #composer input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; }
-  button { padding: 10px 16px; border: 0; border-radius: 20px; background: #0b84ff; color: #fff; cursor: pointer; }
+  button.send { padding: 10px 16px; border: 0; border-radius: 20px; background: #0b84ff; color: #fff; cursor: pointer; }
+  button.send:disabled { opacity: .5; cursor: default; }
 
-  @media (max-width: 600px) { #sidebar { display: none; } }
+  .avatar { border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+  .avatar-fallback { border-radius: 50%; background: #0b84ff; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; }
+  .avatar-fallback.group { background: #7b5fd1; }
+  .avatar-wrap { position: relative; flex-shrink: 0; }
+  .dot { position: absolute; bottom: -1px; right: -1px; width: 9px; height: 9px; border-radius: 50%; background: #ccc; border: 2px solid #fff; }
+  .dot.online { background: #4caf50; }
+
+  .panel { padding: 12px; }
+  .panel input[type="text"], .panel input:not([type]) { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; }
+  .panel-label { font-size: 12px; color: #666; margin-bottom: 8px; }
+  .check-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; cursor: pointer; }
+  .btn { width: 100%; padding: 10px; border: 0; border-radius: 8px; cursor: pointer; margin-top: 8px; font-size: 14px; }
+  .btn-primary { background: #0b84ff; color: #fff; }
+  .btn-muted { background: #eee; }
+  .btn-danger { background: #fdd; color: #900; }
+  .err-text { color: #c00; font-size: 13px; min-height: 16px; margin-top: 4px; }
+  .member-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f2f2f2; }
+  .member-row .info { flex: 1; }
+  .member-row .mname { font-size: 14px; font-weight: 600; }
+  .member-row .mrole { font-size: 12px; color: #888; }
+  .member-row button { font-size: 12px; padding: 5px 8px; border: 0; border-radius: 6px; cursor: pointer; margin-left: 6px; }
+  .back-link { color: #0b84ff; font-size: 13px; cursor: pointer; margin-top: 10px; }
+
+  @media (max-width: 700px) {
+    #sidebar { position: absolute; inset: 0; z-index: 2; }
+    #sidebar.chat-open { display: none; }
+    #backBtn { display: inline-block !important; }
+  }
+  #backBtn { display: none; border: 0; background: none; font-size: 18px; cursor: pointer; padding: 0 6px; }
 </style>
 </head>
 <body>
 
-<div id="login">
-  <form id="loginForm">
-    <h2 style="margin:0">Join chat</h2>
-    <input id="nameInput" placeholder="Choose a username" maxlength="20" autofocus />
-    <div id="err"></div>
-    <button style="width:100%">Join</button>
-  </form>
-</div>
-
 <div id="app" class="hidden">
-  <div id="sidebar">
-    <h3>ONLINE</h3>
-    <div id="users"></div>
+  <div id="topbar">
+    <div id="meAvatar"></div>
+    <div class="name" id="meName"></div>
+    <button id="notifyBtn" class="hidden">🔔 Enable notifications</button>
+    <button id="logoutBtn">Log out</button>
   </div>
-  <div id="chat">
-    <div id="messages"></div>
-    <div id="typing"></div>
-    <form id="composer">
-      <input id="msgInput" placeholder="Type a message…" autocomplete="off" />
-      <button>Send</button>
-    </form>
+  <div id="offlineBanner" class="hidden">You're offline — messages will send once you're back online</div>
+  <div id="main">
+    <div id="sidebar">
+      <div id="sidebarHead">
+        <h3 id="sidebarTitle">CHATS</h3>
+        <button id="newChatBtn" title="New chat">+</button>
+      </div>
+      <div id="sidebarList"></div>
+    </div>
+    <div id="chat">
+      <div id="placeholder">Select a chat, or start a new one</div>
+      <div id="convo" class="hidden" style="display:flex; flex-direction:column; height:100%;">
+        <div id="chatHeader">
+          <button id="backBtn">&larr;</button>
+          <div id="peerAvatar"></div>
+          <div id="peerMeta">
+            <div class="name" id="peerName"></div>
+            <div class="status" id="peerStatus"></div>
+          </div>
+          <button id="infoBtn" class="hidden" title="Group info">ⓘ</button>
+        </div>
+        <div id="messages"></div>
+        <div id="typing"></div>
+        <form id="composer">
+          <input id="msgInput" placeholder="Type a message…" autocomplete="off" />
+          <button class="send" id="sendBtn">Send</button>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io();
-  let me = "";
-  const typingUsers = new Set();
+  // ================= IndexedDB: local cache + offline outbox =================
+  const DB_NAME = "chatdb";
+  const DB_VERSION = 1;
+  let dbPromise = null;
+
+  function openDB() {
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains("messages")) {
+          const store = db.createObjectStore("messages", { keyPath: "id" });
+          store.createIndex("chatId", "chatId");
+        }
+        if (!db.objectStoreNames.contains("outbox")) {
+          db.createObjectStore("outbox", { keyPath: "tempId" });
+        }
+        if (!db.objectStoreNames.contains("chats")) {
+          db.createObjectStore("chats", { keyPath: "id" }); // partner userId or group id
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return dbPromise;
+  }
+  async function idbPut(store, value) {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(store, "readwrite");
+      tx.objectStore(store).put(value);
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error);
+    });
+  }
+  async function idbDelete(store, key) {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(store, "readwrite");
+      tx.objectStore(store).delete(key);
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error);
+    });
+  }
+  async function idbGetAll(store) {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(store, "readonly");
+      const req = tx.objectStore(store).getAll();
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+  }
+  async function idbGetByIndex(store, index, value) {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(store, "readonly");
+      const req = tx.objectStore(store).index(index).getAll(value);
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+  }
+
+  // ================= App state =================
+  let me = null;
+  let socket = null;
+  let onlineIds = new Set();
+  let chats = [];           // unified [{type,id,title,photo,online,lastMessage,unread}]
+  let allUsers = [];
+  let groupsCache = {};     // groupId -> groupPublic({id,name,members:[{id,name,photo,role}]})
+  let currentChat = null;   // {type:'direct'|'group', id, title, photo}
+  let sidebarMode = "chats"; // chats | newChat | newGroup | groupInfo | addMembers
+  let msgEls = {};          // message/temp id -> { row, tickSpan, timeSpan, bodyEl }
+  let typingTimer;
 
   const $ = (id) => document.getElementById(id);
-  const messagesEl = $("messages");
 
-  // ---- Join ----
-  $("loginForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = $("nameInput").value.trim();
-    socket.emit("join", name, (res) => {
-      if (!res.ok) return ($("err").textContent = res.error);
-      me = name;
-      $("login").classList.add("hidden");
-      $("app").classList.remove("hidden");
-      res.history.forEach(addMessage);
-      $("msgInput").focus();
+  function chatIdOf(a, b) { return [a, b].sort().join("_"); }
+  function chatKeyOf(chat) { return chat.type === "direct" ? chatIdOf(me.id, chat.id) : chat.id; }
+
+  function avatarEl(entity, size, isGroup) {
+    let el;
+    if (entity.photo) {
+      el = document.createElement("img");
+      el.src = entity.photo;
+      el.className = "avatar";
+    } else {
+      el = document.createElement("div");
+      el.className = "avatar-fallback" + (isGroup ? " group" : "");
+      el.style.fontSize = Math.round(size * 0.45) + "px";
+      el.textContent = (entity.name || entity.title || "?").trim()[0]?.toUpperCase() || "?";
+    }
+    el.style.width = el.style.height = size + "px";
+    return el;
+  }
+
+  function avatarWithDot(entity, size, isGroup) {
+    const wrap = document.createElement("div");
+    wrap.className = "avatar-wrap";
+    wrap.style.width = wrap.style.height = size + "px";
+    wrap.appendChild(avatarEl(entity, size, isGroup));
+    if (!isGroup) {
+      const dot = document.createElement("div");
+      dot.className = "dot" + (onlineIds.has(entity.id) ? " online" : "");
+      dot.dataset.peerDot = entity.id;
+      wrap.appendChild(dot);
+    }
+    return wrap;
+  }
+
+  function timeLabel(ts) {
+    return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function ticksFor(status) {
+    if (status === "queued") return { text: "🕒", cls: "ticks" };
+    if (status === "read") return { text: "✓✓", cls: "ticks read" };
+    if (status === "delivered") return { text: "✓✓", cls: "ticks" };
+    return { text: "✓", cls: "ticks" };
+  }
+
+  // ================= Offline banner =================
+  function updateOfflineBanner() {
+    const offline = !navigator.onLine || !(socket && socket.connected);
+    $("offlineBanner").classList.toggle("hidden", !offline);
+  }
+  window.addEventListener("online", () => { updateOfflineBanner(); flushOutbox(); });
+  window.addEventListener("offline", updateOfflineBanner);
+
+  // ================= Loading chats / contacts =================
+  async function loadChats() {
+    try {
+      const res = await fetch("/api/chats");
+      const data = await res.json();
+      if (data.ok) {
+        chats = data.chats;
+        for (const c of chats) await idbPut("chats", { id: c.id, ...c });
+      }
+    } catch {
+      chats = (await idbGetAll("chats")).sort((a, b) => b.lastMessage.time - a.lastMessage.time);
+    }
+    if (sidebarMode === "chats") renderChatList();
+  }
+
+  async function loadAllUsers() {
+    try {
+      const res = await fetch("/api/users");
+      const data = await res.json();
+      if (data.ok) allUsers = data.users;
+    } catch {
+      allUsers = [];
+    }
+  }
+
+  // ================= Sidebar: chat list =================
+  function renderChatList() {
+    sidebarMode = "chats";
+    $("sidebarTitle").textContent = "CHATS";
+    $("newChatBtn").textContent = "+";
+    const list = $("sidebarList");
+    list.replaceChildren();
+
+    if (!chats.length) {
+      const empty = document.createElement("div");
+      empty.id = "emptyList";
+      empty.textContent = "No chats yet. Tap + to start one.";
+      list.appendChild(empty);
+      return;
+    }
+
+    for (const c of chats) {
+      const item = document.createElement("div");
+      item.className = "chat-item" + (currentChat && currentChat.type === c.type && currentChat.id === c.id ? " active" : "");
+      item.appendChild(avatarWithDot({ id: c.id, name: c.title, photo: c.photo }, 40, c.type === "group"));
+      const info = document.createElement("div");
+      info.className = "info";
+      const row1 = document.createElement("div");
+      row1.className = "row1";
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = c.title;
+      const time = document.createElement("div");
+      time.className = "time";
+      time.textContent = timeLabel(c.lastMessage.time);
+      row1.append(name, time);
+      const preview = document.createElement("div");
+      preview.className = "preview";
+      const prefix = c.lastMessage.fromMe ? "You: " : c.lastMessage.fromName ? c.lastMessage.fromName + ": " : "";
+      preview.textContent = prefix + c.lastMessage.text;
+      info.append(row1, preview);
+      item.appendChild(info);
+      if (c.unread > 0) {
+        const badge = document.createElement("div");
+        badge.className = "badge";
+        badge.textContent = c.unread;
+        item.appendChild(badge);
+      }
+      item.addEventListener("click", () => openChat(c));
+      list.appendChild(item);
+    }
+  }
+
+  // ================= Sidebar: start a new chat / group =================
+  function renderNewChatList() {
+    sidebarMode = "newChat";
+    $("sidebarTitle").textContent = "START A CHAT";
+    $("newChatBtn").textContent = "×";
+    const list = $("sidebarList");
+    list.replaceChildren();
+
+    const groupRow = document.createElement("div");
+    groupRow.className = "chat-item";
+    const gAvatar = document.createElement("div");
+    gAvatar.className = "avatar-fallback group";
+    gAvatar.style.width = gAvatar.style.height = "40px";
+    gAvatar.style.fontSize = "18px";
+    gAvatar.textContent = "👥";
+    groupRow.appendChild(gAvatar);
+    const gInfo = document.createElement("div");
+    gInfo.className = "info";
+    const gName = document.createElement("div");
+    gName.className = "name";
+    gName.textContent = "New group";
+    gInfo.appendChild(gName);
+    groupRow.appendChild(gInfo);
+    groupRow.addEventListener("click", renderNewGroupForm);
+    list.appendChild(groupRow);
+
+    if (!allUsers.length) {
+      const empty = document.createElement("div");
+      empty.id = "emptyList";
+      empty.textContent = navigator.onLine ? "No other users registered yet." : "You're offline — connect to start a new chat.";
+      list.appendChild(empty);
+      return;
+    }
+
+    for (const u of allUsers) {
+      const item = document.createElement("div");
+      item.className = "chat-item";
+      item.appendChild(avatarWithDot(u, 40, false));
+      const info = document.createElement("div");
+      info.className = "info";
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = u.name;
+      const sub = document.createElement("div");
+      sub.className = "preview";
+      sub.textContent = "@" + u.username;
+      info.append(name, sub);
+      item.appendChild(info);
+      item.addEventListener("click", () => openChat({ type: "direct", id: u.id, title: u.name, photo: u.photo }));
+      list.appendChild(item);
+    }
+  }
+
+  $("newChatBtn").addEventListener("click", async () => {
+    if (sidebarMode === "chats") {
+      await loadAllUsers();
+      renderNewChatList();
+    } else {
+      renderChatList();
+    }
+  });
+
+  function renderNewGroupForm() {
+    sidebarMode = "newGroup";
+    $("sidebarTitle").textContent = "NEW GROUP";
+    $("newChatBtn").textContent = "×";
+    const list = $("sidebarList");
+    list.replaceChildren();
+
+    const wrap = document.createElement("div");
+    wrap.className = "panel";
+
+    const nameInput = document.createElement("input");
+    nameInput.placeholder = "Group name";
+    nameInput.maxLength = 50;
+    wrap.appendChild(nameInput);
+
+    const label = document.createElement("div");
+    label.className = "panel-label";
+    label.textContent = "Add members:";
+    wrap.appendChild(label);
+
+    const checks = [];
+    for (const u of allUsers) {
+      const row = document.createElement("label");
+      row.className = "check-row";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = u.id;
+      row.append(cb, avatarEl(u, 26));
+      const span = document.createElement("span");
+      span.textContent = u.name;
+      row.appendChild(span);
+      wrap.appendChild(row);
+      checks.push(cb);
+    }
+
+    const err = document.createElement("div");
+    err.className = "err-text";
+    wrap.appendChild(err);
+
+    const createBtn = document.createElement("button");
+    createBtn.className = "btn btn-primary";
+    createBtn.textContent = "Create group";
+    createBtn.addEventListener("click", async () => {
+      const name = nameInput.value.trim();
+      const memberIds = checks.filter((c) => c.checked).map((c) => c.value);
+      if (!name) return (err.textContent = "Enter a group name");
+      if (!memberIds.length) return (err.textContent = "Pick at least one member");
+      try {
+        const res = await fetch("/api/groups", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, memberIds }),
+        });
+        const data = await res.json();
+        if (!data.ok) return (err.textContent = data.error);
+        groupsCache[data.group.id] = data.group;
+        await loadChats();
+        openChat({ type: "group", id: data.group.id, title: data.group.name, photo: null });
+      } catch {
+        err.textContent = "You're offline — creating a group needs a connection.";
+      }
     });
-  });
+    wrap.appendChild(createBtn);
 
-  // ---- Render ----
+    list.appendChild(wrap);
+  }
+
+  // ================= Conversation pane =================
+  function senderInfoFor(m) {
+    if (m.from === me.id) return me;
+    if (currentChat && currentChat.type === "direct") return currentChat;
+    const group = currentChat && groupsCache[currentChat.id];
+    return (group && group.members.find((x) => x.id === m.from)) || { name: "Unknown", photo: null };
+  }
+
+  async function openChat(chat) {
+    currentChat = chat;
+    $("placeholder").classList.add("hidden");
+    $("convo").classList.remove("hidden");
+    $("sidebar").classList.add("chat-open");
+    $("peerAvatar").replaceChildren(avatarEl({ name: chat.title, photo: chat.photo }, 32, chat.type === "group"));
+    $("peerName").textContent = chat.title;
+    $("infoBtn").classList.toggle("hidden", chat.type !== "group");
+    updatePeerStatus();
+
+    $("messages").replaceChildren();
+    msgEls = {};
+
+    const chatId = chatKeyOf(chat);
+    const cached = (await idbGetByIndex("messages", "chatId", chatId)).sort((a, b) => a.time - b.time);
+    cached.forEach(addMessage);
+
+    if (navigator.onLine) {
+      try {
+        const url = chat.type === "direct" ? "/api/messages/" + chat.id : "/api/groups/" + chat.id + "/messages";
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.ok) {
+          if (chat.type === "group") groupsCache[chat.id] = data.group;
+          for (const m of data.messages) {
+            await idbPut("messages", m);
+            addMessage(m);
+          }
+        }
+      } catch {}
+    }
+
+    if (socket && socket.connected) {
+      if (chat.type === "direct") socket.emit("read", { otherUserId: chat.id });
+      else socket.emit("group_read", { groupId: chat.id });
+    }
+    await loadChats();
+    if (sidebarMode === "chats") renderChatList();
+    $("msgInput").focus();
+  }
+
+  function updatePeerStatus() {
+    if (!currentChat) return;
+    if (currentChat.type === "direct") {
+      $("peerStatus").textContent = onlineIds.has(currentChat.id) ? "Online" : "";
+    } else {
+      const g = groupsCache[currentChat.id];
+      $("peerStatus").textContent = g ? `${g.members.length} members` : "";
+    }
+  }
+
+  $("backBtn").addEventListener("click", () => $("sidebar").classList.remove("chat-open"));
+
   function addMessage(m) {
-    const div = document.createElement("div");
-    div.className = "msg" + (m.user === me ? " me" : "");
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    meta.textContent = `${m.user} · ${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
-    const body = document.createElement("div");
-    body.textContent = m.text;
-    div.append(meta, body);
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    const reuseKey = m.tempId && msgEls[m.tempId] ? m.tempId : msgEls[m.id] ? m.id : null;
+    let row, tickSpan, timeSpan, bodyEl, nameEl;
+
+    if (reuseKey) {
+      ({ row, tickSpan, timeSpan, bodyEl, nameEl } = msgEls[reuseKey]);
+      if (reuseKey !== m.id) delete msgEls[reuseKey];
+    } else {
+      const mine = m.from === me.id;
+      const sender = senderInfoFor(m);
+      row = document.createElement("div");
+      row.className = "row" + (mine ? " me" : "");
+      row.appendChild(avatarEl(sender, 26, false));
+
+      const bubble = document.createElement("div");
+      bubble.className = "msg";
+
+      if (!mine && currentChat && currentChat.type === "group") {
+        nameEl = document.createElement("div");
+        nameEl.style.cssText = "font-size:12px;font-weight:600;color:#0b84ff;margin-bottom:2px;";
+        nameEl.textContent = sender.name || sender.title || "Someone";
+        bubble.appendChild(nameEl);
+      }
+
+      bodyEl = document.createElement("div");
+      bodyEl.className = "body";
+      bubble.appendChild(bodyEl);
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      timeSpan = document.createElement("span");
+      meta.appendChild(timeSpan);
+      if (mine && currentChat && currentChat.type === "direct") {
+        tickSpan = document.createElement("span");
+        meta.appendChild(tickSpan);
+      }
+      bubble.appendChild(meta);
+      row.appendChild(bubble);
+      $("messages").appendChild(row);
+    }
+
+    bodyEl.textContent = m.text;
+    timeSpan.textContent = timeLabel(m.time);
+    if (tickSpan) {
+      const t = ticksFor(m.status || "queued");
+      tickSpan.className = t.cls;
+      tickSpan.textContent = t.text;
+    }
+
+    msgEls[m.id] = { row, tickSpan, timeSpan, bodyEl, nameEl };
+    $("messages").scrollTop = $("messages").scrollHeight;
   }
 
-  function addSystem(text) {
-    const div = document.createElement("div");
-    div.className = "sys";
-    div.textContent = text;
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+  function updateTicks(ids, status) {
+    const t = ticksFor(status);
+    for (const id of ids) {
+      const el = msgEls[id];
+      if (el && el.tickSpan) {
+        el.tickSpan.className = t.cls;
+        el.tickSpan.textContent = t.text;
+      }
+    }
   }
 
-  // ---- Send ----
-  let typingTimer;
-  $("composer").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const input = $("msgInput");
-    if (!input.value.trim()) return;
-    socket.emit("message", input.value);
-    socket.emit("typing", false);
-    input.value = "";
-  });
+  // ================= Group info / admin panel =================
+  async function openGroupInfo() {
+    if (!currentChat || currentChat.type !== "group") return;
+    try {
+      const res = await fetch("/api/groups/" + currentChat.id);
+      const data = await res.json();
+      if (data.ok) groupsCache[currentChat.id] = data.group;
+    } catch {}
+    $("sidebar").classList.remove("chat-open");
+    sidebarMode = "groupInfo";
+    renderGroupInfoPanel();
+  }
+  $("infoBtn").addEventListener("click", openGroupInfo);
 
-  $("msgInput").addEventListener("input", () => {
-    socket.emit("typing", true);
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => socket.emit("typing", false), 1500);
-  });
+  function renderGroupInfoPanel() {
+    sidebarMode = "groupInfo";
+    $("sidebarTitle").textContent = "GROUP INFO";
+    $("newChatBtn").textContent = "×";
+    const group = groupsCache[currentChat.id];
+    const list = $("sidebarList");
+    list.replaceChildren();
+    if (!group) {
+      list.textContent = "Unable to load group.";
+      return;
+    }
 
-  // ---- Events ----
-  socket.on("message", addMessage);
-  socket.on("system", addSystem);
-  socket.on("users", (list) => {
-    $("users").replaceChildren(
-      ...list.map((u) => Object.assign(document.createElement("div"), { textContent: u }))
-    );
-  });
-  socket.on("typing", ({ user, isTyping }) => {
-    isTyping ? typingUsers.add(user) : typingUsers.delete(user);
-    const names = [...typingUsers];
-    $("typing").textContent = names.length ? `${names.join(", ")} typing…` : "";
-  });
+    const wrap = document.createElement("div");
+    wrap.className = "panel";
+    const amAdmin = group.members.find((m) => m.id === me.id)?.role === "admin";
+
+    if (amAdmin) {
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;gap:6px;";
+      const nameInput = document.createElement("input");
+      nameInput.value = group.name;
+      nameInput.style.flex = "1";
+      const saveBtn = document.createElement("button");
+      saveBtn.textContent = "Save";
+      saveBtn.className = "btn btn-primary";
+      saveBtn.style.cssText = "width:auto;margin-top:0;";
+      saveBtn.addEventListener("click", async () => {
+        const name = nameInput.value.trim();
+        if (!name) return;
+        const res = await fetch("/api/groups/" + group.id, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          groupsCache[group.id] = data.group;
+          $("peerName").textContent = data.group.name;
+          await loadChats();
+          renderGroupInfoPanel();
+        }
+      });
+      row.append(nameInput, saveBtn);
+      wrap.appendChild(row);
+    } else {
+      const h = document.createElement("h3");
+      h.textContent = group.name;
+      h.style.margin = "0 0 4px";
+      wrap.appendChild(h);
+    }
+
+    const label = document.createElement("div");
+    label.className = "panel-label";
+    label.style.marginTop = "12px";
+    label.textContent = group.members.length + " members";
+    wrap.appendChild(label);
+
+    for (const m of group.members) {
+      const row = document.createElement("div");
+      row.className = "member-row";
+      row.appendChild(avatarEl(m, 34, false));
+      const info = document.createElement("div");
+      info.className = "info";
+      const nm = document.createElement("div");
+      nm.className = "mname";
+      nm.textContent = m.name + (m.id === me.id ? " (you)" : "");
+      const role = document.createElement("div");
+      role.className = "mrole";
+      role.textContent = m.role === "admin" ? "Admin" : "Member";
+      info.append(nm, role);
+      row.appendChild(info);
+
+      if (amAdmin && m.id !== me.id) {
+        const roleBtn = document.createElement("button");
+        roleBtn.className = "btn-muted";
+        roleBtn.textContent = m.role === "admin" ? "Remove admin" : "Make admin";
+        roleBtn.addEventListener("click", async () => {
+          const res = await fetch("/api/groups/" + group.id + "/role", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: m.id, role: m.role === "admin" ? "member" : "admin" }),
+          });
+          const data = await res.json();
+          if (data.ok) {
+            groupsCache[group.id] = data.group;
+            renderGroupInfoPanel();
+          } else alert(data.error);
+        });
+        row.appendChild(roleBtn);
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn-danger";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", async () => {
+          if (!confirm(`Remove ${m.name} from the group?`)) return;
+          const res = await fetch("/api/groups/" + group.id + "/remove", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: m.id }),
+          });
+          const data = await res.json();
+          if (data.ok) {
+            groupsCache[group.id] = data.group;
+            renderGroupInfoPanel();
+          } else alert(data.error);
+        });
+        row.appendChild(removeBtn);
+      }
+      wrap.appendChild(row);
+    }
+
+    if (amAdmin) {
+      const addBtn = document.createElement("button");
+      addBtn.className = "btn btn-muted";
+      addBtn.textContent = "+ Add members";
+      addBtn.addEventListener("click", async () => {
+        if (!allUsers.length) await loadAllUsers();
+        renderAddMembersForm(group);
+      });
+      wrap.appendChild(addBtn);
+    }
+
+    const leaveBtn = document.createElement("button");
+    leaveBtn.className = "btn btn-danger";
+    leaveBtn.textContent = "Leave group";
+    leaveBtn.addEventListener("click", async () => {
+      if (!confirm("Leave this group?")) return;
+      await fetch("/api/groups/" + group.id + "/leave", { method: "POST" });
+      delete groupsCache[group.id];
+      currentChat = null;
+      $("convo").classList.add("hidden");
+      $("placeholder").classList.remove("hidden");
+      await loadChats();
+      renderChatList();
+    });
+    wrap.appendChild(leaveBtn);
+
+    list.appendChild(wrap);
+  }
+
+  function renderAddMembersForm(group) {
+    sidebarMode = "addMembers";
+    $("sidebarTitle").textContent = "ADD MEMBERS";
+    const list = $("sidebarList");
+    list.replaceChildren();
+    const wrap = document.createElement("div");
+    wrap.className = "panel";
+
+    const nonMembers = allUsers.filter((u) => !group.members.some((m) => m.id === u.id));
+    const checks = [];
+    if (!nonMembers.length) {
+      const p = document.createElement("div");
+      p.className = "panel-label";
+      p.textContent = "Everyone is already in this group.";
+      wrap.appendChild(p);
+    }
+    for (const u of nonMembers) {
+      const row = document.createElement("label");
+      row.className = "check-row";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = u.id;
+      row.append(cb, avatarEl(u, 26));
+      const span = document.createElement("span");
+      span.textContent = u.name;
+      row.appendChild(span);
+      wrap.appendChild(row);
+      checks.push(cb);
+    }
+    if (nonMembers.length) {
+      const addBtn = document.createElement("button");
+      addBtn.className = "btn btn-primary";
+      addBtn.textContent = "Add";
+      addBtn.addEventListener("click", async () => {
+        const memberIds = checks.filter((c) => c.checked).map((c) => c.value);
+        if (!memberIds.length) return;
+        const res = await fetch("/api/groups/" + group.id + "/members", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ memberIds }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          groupsCache[group.id] = data.group;
+          renderGroupInfoPanel();
+        }
+      });
+      wrap.appendChild(addBtn);
+    }
+    const back = document.createElement("div");
+    back.className = "back-link";
+    back.textContent = "← Back to group info";
+    back.addEventListener("click", renderGroupInfoPanel);
+    wrap.appendChild(back);
+
+    list.appendChild(wrap);
+  }
+
+  // ================= Sending, with offline queueing =================
+  async function sendMessage(text) {
+    if (!currentChat) return;
+    const tempId = "tmp-" + crypto.randomUUID();
+    const chatId = chatKeyOf(currentChat);
+    const localMsg = {
+      id: tempId,
+      tempId,
+      chatId,
+      type: currentChat.type,
+      from: me.id,
+      to: currentChat.type === "direct" ? currentChat.id : undefined,
+      text,
+      time: Date.now(),
+      status: currentChat.type === "direct" ? "queued" : undefined,
+    };
+    await idbPut("messages", localMsg);
+    addMessage(localMsg);
+
+    if (socket && socket.connected) {
+      if (currentChat.type === "direct") socket.emit("private_message", { to: currentChat.id, text, tempId });
+      else socket.emit("group_message", { groupId: currentChat.id, text, tempId });
+    } else {
+      await idbPut("outbox", { tempId, chatType: currentChat.type, targetId: currentChat.id, text, time: localMsg.time });
+      updateOfflineBanner();
+    }
+  }
+
+  async function flushOutbox() {
+    if (!socket || !socket.connected) return;
+    const items = await idbGetAll("outbox");
+    for (const item of items) {
+      if (item.chatType === "direct") socket.emit("private_message", { to: item.targetId, text: item.text, tempId: item.tempId });
+      else socket.emit("group_message", { groupId: item.targetId, text: item.text, tempId: item.tempId });
+    }
+  }
+
+  // ================= Push notifications =================
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+  }
+
+  async function enablePush() {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return;
+
+    const keyRes = await fetch("/api/push/publicKey");
+    const keyData = await keyRes.json();
+    if (!keyData.ok || !keyData.key) return; // push isn't available in this environment
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(keyData.key),
+    });
+    await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: sub }),
+    });
+    $("notifyBtn").classList.add("hidden");
+  }
+
+  $("notifyBtn").addEventListener("click", () => enablePush().catch(() => {}));
+
+  function setupPushUI() {
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) return;
+    if (Notification.permission === "granted") {
+      enablePush().catch(() => {});
+    } else if (Notification.permission !== "denied") {
+      $("notifyBtn").classList.remove("hidden");
+    }
+  }
+
+  // ================= Init =================
+  async function init() {
+    let data;
+    try {
+      const res = await fetch("/api/me");
+      data = await res.json();
+      if (data.ok) localStorage.setItem("me", JSON.stringify(data.user));
+    } catch {
+      const cached = localStorage.getItem("me");
+      if (cached) data = { ok: true, user: JSON.parse(cached) };
+    }
+    if (!data || !data.ok) return (location.href = "/login.html");
+    me = data.user;
+
+    $("meName").textContent = me.name;
+    $("meAvatar").replaceChildren(avatarEl(me, 32, false));
+    $("app").classList.remove("hidden");
+    updateOfflineBanner();
+
+    $("logoutBtn").addEventListener("click", async () => {
+      await fetch("/api/logout", { method: "POST" });
+      localStorage.removeItem("me");
+      location.href = "/login.html";
+    });
+
+    await loadAllUsers();
+    await loadChats();
+    renderChatList();
+    setupPushUI();
+
+    socket = io();
+    socket.on("connect", () => { updateOfflineBanner(); flushOutbox(); });
+    socket.on("disconnect", updateOfflineBanner);
+    socket.on("auth_error", () => (location.href = "/login.html"));
+
+    socket.on("presence", (ids) => {
+      onlineIds = new Set(ids);
+      updatePeerStatus();
+      document.querySelectorAll("[data-peer-dot]").forEach((d) => {
+        d.classList.toggle("online", onlineIds.has(d.dataset.peerDot));
+      });
+    });
+
+    socket.on("private_message", async (m) => {
+      if (m.tempId) {
+        await idbDelete("outbox", m.tempId);
+        if (m.tempId !== m.id) await idbDelete("messages", m.tempId);
+      }
+      await idbPut("messages", m);
+      const inThisChat = currentChat && currentChat.type === "direct" && m.chatId === chatKeyOf(currentChat);
+      if (inThisChat) {
+        addMessage(m);
+        if (m.to === me.id) socket.emit("read", { otherUserId: currentChat.id });
+      }
+      await loadChats();
+    });
+
+    socket.on("group_message", async (m) => {
+      if (m.tempId) {
+        await idbDelete("outbox", m.tempId);
+        if (m.tempId !== m.id) await idbDelete("messages", m.tempId);
+      }
+      await idbPut("messages", m);
+      const inThisChat = currentChat && currentChat.type === "group" && m.chatId === currentChat.id;
+      if (inThisChat) {
+        addMessage(m);
+        if (m.from !== me.id) socket.emit("group_read", { groupId: currentChat.id });
+      }
+      await loadChats();
+    });
+
+    socket.on("group_updated", async (group) => {
+      groupsCache[group.id] = group;
+      if (currentChat && currentChat.type === "group" && currentChat.id === group.id) {
+        $("peerName").textContent = group.name;
+        updatePeerStatus();
+        if (sidebarMode === "groupInfo") renderGroupInfoPanel();
+      }
+      await loadChats();
+    });
+
+    socket.on("group_removed", async ({ groupId }) => {
+      delete groupsCache[groupId];
+      if (currentChat && currentChat.type === "group" && currentChat.id === groupId) {
+        currentChat = null;
+        $("convo").classList.add("hidden");
+        $("placeholder").classList.remove("hidden");
+        alert("You were removed from this group.");
+      }
+      await loadChats();
+      renderChatList();
+    });
+
+    socket.on("delivered", ({ chatId, ids }) => {
+      if (currentChat && currentChat.type === "direct" && chatId === chatKeyOf(currentChat)) updateTicks(ids, "delivered");
+    });
+    socket.on("read_receipt", ({ chatId, ids }) => {
+      if (currentChat && currentChat.type === "direct" && chatId === chatKeyOf(currentChat)) updateTicks(ids, "read");
+    });
+    socket.on("typing", ({ from, isTyping }) => {
+      if (currentChat && currentChat.type === "direct" && from === currentChat.id) {
+        $("typing").textContent = isTyping ? `${currentChat.title} is typing…` : "";
+      }
+    });
+
+    $("composer").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = $("msgInput");
+      if (!input.value.trim() || !currentChat) return;
+      sendMessage(input.value.trim());
+      if (currentChat.type === "direct") socket.emit("typing", { to: currentChat.id, isTyping: false });
+      input.value = "";
+    });
+    $("msgInput").addEventListener("input", () => {
+      if (!currentChat || currentChat.type !== "direct" || !socket.connected) return;
+      socket.emit("typing", { to: currentChat.id, isTyping: true });
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => socket.emit("typing", { to: currentChat.id, isTyping: false }), 1500);
+    });
+  }
+
+  init();
 </script>
 </body>
 </html>
